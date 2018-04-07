@@ -4,23 +4,33 @@ import threading
 import time
 import datetime
 import os.path
+import random
 from time import sleep
 from socket import SHUT_RDWR
 
 # setting server name and server port number
-serverName = sys.argv[1]   # '169.231.80.116'
-serverPort = int(sys.argv[2])               #12000
+
+randNum = random.randint(0,1)
+
+serverName = []
+serverPort = []
+cfg_read = open("config.txt","r")
+for line in cfg_read:
+    tokens = line.split("\t")
+    serverName.append(tokens[1])
+    serverPort.append(int(tokens[2][:-1]))
+
+#serverName = sys.argv[1]   # '169.231.80.116'
+#serverPort = int(sys.argv[2])               #12000
 nickname = raw_input("Enter Username: ")     # username to be used in chat room
 
 # opening socket and sending user name to server
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((serverName,serverPort))
+clientSocket.connect((serverName[randNum],serverPort[randNum]))
 clientSocket.send(nickname.encode())
 #print ("Client message: %s " %message) 											# message sent
 
 ignoreList = []                 # list of users this client has decided to block
-startTime = datetime.datetime.now()
-endTime = datetime.datetime.now()
 quit = 0
 
 
