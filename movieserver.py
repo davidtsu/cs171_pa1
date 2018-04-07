@@ -7,11 +7,13 @@ from time import sleep
 import threading
 from socket import SHUT_RDWR
 
+tickets = 50
+
 serverAddress = []
 serverPort = []
 cfg_read = open("config.txt", "r")
 for line in cfg_read:
-    tokens = line.split("/t")
+    tokens = line.split("\t")
     serverAddress.append(tokens[1])
     serverPort.append(int(tokens[2][:-1]))
 
@@ -64,6 +66,17 @@ def ListenForMessage(con, nick):
                 print("%s \n" %(tempMessage))
                 sendMessage(tempMessage, con)
 
+def forwardMessage(otherserver):
+    # if a buy request for play tickets comes, pass it here
+    # once playserver returns, then return a success/fail to original user
+    return 0
+
+def processOrder(PARAMS_HERE):
+    # if a buy request for movie tickets comes, process here
+    # if current_tix > 0 && current_tix-request_tix > 0
+    # process and return success
+    # else return fail
+                
 def newSocket():
     while (1):
         connectionSocket, addr = serverSocket.accept()                      # establish connect to client
@@ -93,7 +106,7 @@ t.start()
 t = threading.Thread(target=newSocket)
 threads.append(t)
 t.start()
-print "welcome to chat lab"
+print "welcome to ticketcentral"
 while (len(sockList) > 0):
     continue
 

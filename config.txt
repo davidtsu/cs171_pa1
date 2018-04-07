@@ -1,2 +1,2 @@
-M	csil-01.cs.ucsb.edu	5000
-P	csil-02.cs.ucsb.edu	5001
+M	csil-42.cs.ucsb.edu	5000
+P	csil-42.cs.ucsb.edu	5001

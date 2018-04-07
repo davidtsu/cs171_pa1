@@ -7,11 +7,13 @@ from time import sleep
 import threading
 from socket import SHUT_RDWR
 
+tickets = 50
+
 serverAddress = []
 serverPort = []
 cfg_read = open("config.txt", "r")
 for line in cfg_read:
-    tokens = line.split("/t")
+    tokens = line.split("\t")
     serverAddress.append(tokens[1])
     serverPort.append(int(tokens[2][:-1]))
 
@@ -47,29 +49,40 @@ def ListenForMessage(con, nick):
         print( "length of connection array %i \n" %len(sockList))
         message = con.recv(1024)                               # receive message from client
         tempMessage = str(message)
-        if tempMessage[0:2] == "\d" :
+        '''if tempMessage[0:2] == "\d" :
             parseMessage = tempMessage.split("&@#")
             if parseMessage[1] in nickName:
                 conIndex = nickName.index(parseMessage[1])
                 sockList[conIndex].send(tempMessage)
-        
-        else :
-            parseMessage = tempMessage.split(" ")
-            if parseMessage[0] == "/quit" :
-                #remove connection
-                sockList.remove(con)
-                nickName.remove(nick)
-                endmes = "bye"
-                con.send(endmes.encode())
-                sleep(1)
-                con.shutdown(SHUT_RDWR)
-                con.close()                                            # closing connection
-                break
-            else:
-                tempMessage = nick + " : " + tempMessage
-                print("%s \n" %(tempMessage))
-                sendMessage(tempMessage, con)
+        '''
+        parseMessage = tempMessage.split(" ")
+        if parseMessage[0] == "/quit" :
+            #remove connection
+            sockList.remove(con)
+            nickName.remove(nick)
+            endmes = "bye"
+            con.send(endmes.encode())
+            sleep(1)
+            con.shutdown(SHUT_RDWR)
+            con.close()                                            # closing connection
+            break
+        else:
+            tempMessage = nick + " : " + tempMessage
+            print("%s \n" %(tempMessage))
+            sendMessage(tempMessage, con)
 
+def forwardMessage(otherserver):
+    # if a buy request for movie tickets comes, pass it here
+    # once movieserver returns, then return a success/fail to original user
+    return 0
+
+def processOrder(PARAMS_HERE):
+    # if a buy request for play tickets comes, process here
+    # if current_tix > 0 && current_tix-request_tix > 0
+    # process and return success
+    # else return fail
+    return 0
+            
 def newSocket():
     while (1):
         connectionSocket, addr = serverSocket.accept()                      # establish connect to client
@@ -106,6 +119,8 @@ while (len(sockList) > 0):
 print("closing socket")
 serverSocket.shutdown(SHUT_RDWR)
 serverSocket.close()
+clientSocket.shutdown(SHUT_RDWR)
+clientSocket.close()
 connectionSocket.shutdown(SHUT_RDWR)
 connectionSocket.close()
 

@@ -26,40 +26,12 @@ quit = 0
 
 def PrintHelpMenu():
     print("\n************** HELP MENU ******************")
-    print("\nCOMMANDS ALLOWED IN THIS CHAT ROOM")
-    print("\n\n/msg nickname message \n msg command is used for private messaging.\n nickname parameter is the user who you are private messaging \n message is the private message you wish to send user. ")
-    print("\n \n /ignore username \n ignore command is used to block private and public messages sent by a user")
-    print("\n\n /ping username \n ping command is prints the RTT for messages sent to the specified user. \n Only ping one user at a time")
-    print("\n\n /help \n help command prints valid commands and intended purpuse")
-    print("\n\n /quit \n quit command removes user from chat room")
-    print("\n\n /sendFile \n command sends files to another person in chat room \n syntax:    /sendFile reciever filename.filetype")
+    print("\nCOMMANDS ALLOWED IN THIS KIOSK")
+    print("\n\n/play # \n play command is used to buy play tickets.\n Specify the number you want to buy in the command.")
+    print("\n \n /movie # \n movie command is used to buy movie tickets. \n Specify the number you want to buy in the command.")
+    print("\n\n /help \n help command prints valid commands and intended purpose")
+    print("\n\n /quit \n quit command logs user out of kiosk")
     print("\n\n ************** END OF HELP MENU ******************** \n")
-
-
-def SendFile(username, filename):
-    sourceFile  = open(str(filename), 'rb');
-    buff = sourceFile.read(800);
-    while True:
-        if not buff: break;
-        message = str("\dataFile&@#" + username + "&@#"+ filename +"&@#" + buff)
-        clientSocket.send(message)
-        sleep(1)
-        buff = sourceFile.read(800)
-    sourceFile.close()
-    print "finish \n"
-
-def RecieveFile(message):
-    #parse
-    parseMessage = message.split("&@#")
-    #open file
-    print "writing to file"
-    destinationFile = open(str(parseMessage[2]), 'ab+');
-    #write
-    dataList = parseMessage[3:len(parseMessage)]
-    data = " ".join(dataList)
-    destinationFile.write(str(data));
-    #close
-    destinationFile.close()
 
 
 def SendMessage():
@@ -69,19 +41,10 @@ def SendMessage():
                 parsedMessage = inMessage.split(" ")
                 if parsedMessage[0] == "/help":
                     PrintHelpMenu()
-                elif parsedMessage[0] == "/ignore" and len(parsedMessage) == 2:
-                    ignoreList.append(parsedMessage[1])
-                elif parsedMessage[0] == "/unignore" and len(parsedMessage) == 2:
-                    ignoreList.remove(parsedMessage[1])
-                elif parsedMessage[0] == "/ping"   and len(parsedMessage) == 2 :
-                    startTime = datetime.datetime.now()
+                elif parsedMessage[0] == "/play" and len(parsedMessage) == 2:
                     clientSocket.send(inMessage.encode())
-                elif parsedMessage[0] == "/sendFile"   and len(parsedMessage) == 3 :
-                    if os.path.isfile(str(parsedMessage[2])) :
-                        clientSocket.send(inMessage.encode())
-                        SendFile(parsedMessage[1], parsedMessage[2])
-                    else:
-                        print "\n file does not exist in program directory. \n Place file in program directory before sending"
+                elif parsedMessage[0] == "/movie" and len(parsedMessage) == 2:
+                    clientSocket.send(inMessage.encode())
                 elif  parsedMessage[0] == "/quit":
                     clientSocket.send(inMessage.encode())
                 else:
@@ -105,10 +68,7 @@ while  quit == 0:
     modifiedMessage = str(modifiedMessage)
     if len(modifiedMessage) == 0 :
         quit = 1
-    
-    if modifiedMessage[0:2] == "\d":
-        print "recieving file"
-        RecieveFile(modifiedMessage)
+
     else:
         parsedMessage = modifiedMessage.split(" ")
         if parsedMessage[0] in ignoreList:
@@ -123,11 +83,6 @@ while  quit == 0:
                 print("%s pinged you \n" %(parsedMessage[0]))
                 message = "/pAnswer " + parsedMessage[0] + " " + nickname
                 clientSocket.send(message.encode())
-        elif len(parsedMessage) > 4 and parsedMessage[2] == "/sendFile":
-            if parsedMessage[3] == nickname:
-                destinationFile = open(str(parseMessage[2]), 'w');
-                destinationFile.truncate()
-                destinationFile.close()
         elif len(parsedMessage) > 4 and parsedMessage[2] == "/pAnswer":
             if parsedMessage[3] == nickname:
                 endTime = datetime.datetime.now()
