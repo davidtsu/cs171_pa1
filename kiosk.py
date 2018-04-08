@@ -1,108 +1,55 @@
+# Name: David Tsu, Sang Min Oh
+# Class: CS 171
+#
+# PA 1
+# File: kiosk.py
+# Description: A kiosk (client) that connects to the ticket-selling servers.
+
+import random
 import socket
 import sys
-import threading
 import time
-import datetime
-import os.path
-import random
-from time import sleep
-from socket import SHUT_RDWR
 
-# setting server name and server port number
-
-randNum = random.randint(0,1)
-
-serverName = []
-serverPort = []
-cfg_read = open("config.txt","r")
+# Read from the configuration file and determine the IP address and listening port of each server.
+# Movie Server - index 0
+# Play Server - index 1
+server_address = []
+server_port = []
+cfg_read = open("config.txt", "r")
 for line in cfg_read:
     tokens = line.split("\t")
-    serverName.append(tokens[1])
-    serverPort.append(int(tokens[2][:-1]))
+    server_address.append(tokens[1])
+    server_port.append(int(tokens[2][:-1]))
 
-#serverName = sys.argv[1]   # '169.231.80.116'
-#serverPort = int(sys.argv[2])               #12000
-nickname = raw_input("Enter Username: ")     # username to be used in chat room
+print "\n*** WELCOME TO THE KIOSK ***\n\nCOMMANDS:\n\nBUY TICKET = \"buy <movie, play> <amount to purchase>\"\nQUIT = \"quit\"\n"
 
-# opening socket and sending user name to server
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((serverName[randNum],serverPort[randNum]))
-clientSocket.send(nickname.encode())
-#print ("Client message: %s " %message) 											# message sent
+# Infinite loop that lets users buy tickets
+while True:
+    # Get the request from the user
+    request = raw_input()
+    if request == "quit":
+        print "Exiting kiosk..."
+        sys.exit(0)
 
-ignoreList = []                 # list of users this client has decided to block
-quit = 0
+    # If the request isn't to quit the kiosk, continue
+    
+    # Create a TCP for connecting to the server
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Connect the client to a random ticket-selling server
+    rand_num = random.randint(0,1)
+    client.connect((server_address[rand_num], server_port[rand_num]))
 
+    # Send the request to the server
+    time.sleep(3)
+    client.send(request)
 
-def PrintHelpMenu():
-    print("\n************** HELP MENU ******************")
-    print("\nCOMMANDS ALLOWED IN THIS KIOSK")
-    print("\n\n/play # \n play command is used to buy play tickets.\n Specify the number you want to buy in the command.")
-    print("\n \n /movie # \n movie command is used to buy movie tickets. \n Specify the number you want to buy in the command.")
-    print("\n\n /help \n help command prints valid commands and intended purpose")
-    print("\n\n /quit \n quit command logs user out of kiosk")
-    print("\n\n ************** END OF HELP MENU ******************** \n")
+    # Receive the response from the server
+    response = client.recv(1024)
+    print response
 
-
-def SendMessage():
-        while(1):
-                inMessage = raw_input()
-                #see if a command is being sent
-                parsedMessage = inMessage.split(" ")
-                if parsedMessage[0] == "/help":
-                    PrintHelpMenu()
-                elif parsedMessage[0] == "/play" and len(parsedMessage) == 2:
-                    clientSocket.send(inMessage.encode())
-                elif parsedMessage[0] == "/movie" and len(parsedMessage) == 2:
-                    clientSocket.send(inMessage.encode())
-                elif  parsedMessage[0] == "/quit":
-                    clientSocket.send(inMessage.encode())
-                else:
-                    clientSocket.send(inMessage.encode())
+    # Close the socket
+    client.close()
 
 
 
-
-
-threads = []
-t = threading.Thread(target=SendMessage)
-threads.append(t)
-t.start()
-''' t1 = threading.Thread(target=recieveMessage)
-threads.append(t)
-t.start()
-'''
-while  quit == 0:
-    # handling recieved messages
-    modifiedMessage = clientSocket.recv(1024)                                        # recieving message from server
-    modifiedMessage = str(modifiedMessage)
-    if len(modifiedMessage) == 0 :
-        quit = 1
-
-    else:
-        parsedMessage = modifiedMessage.split(" ")
-        if parsedMessage[0] in ignoreList:
-            continue
-        elif len(parsedMessage) > 4 and parsedMessage[2] == "/msg":
-            if parsedMessage[3] == nickname:
-                printList = parsedMessage[0:2] + parsedMessage[4: len(parsedMessage)]
-                printMes = " ".join(printList)
-                print("private message from %s\n" %printMes)
-        elif len(parsedMessage) > 3 and parsedMessage[2] == "/ping":
-            if parsedMessage[3] == nickname:
-                print("%s pinged you \n" %(parsedMessage[0]))
-                message = "/pAnswer " + parsedMessage[0] + " " + nickname
-                clientSocket.send(message.encode())
-        elif len(parsedMessage) > 4 and parsedMessage[2] == "/pAnswer":
-            if parsedMessage[3] == nickname:
-                endTime = datetime.datetime.now()
-                RTT = endTime - startTime
-                RTT = float(RTT.microseconds)/1000
-                print("RTT for %s is %i ms" %(parsedMessage[4], RTT))
-        else:
-            print("%s\n" %modifiedMessage)
-
-print("quit chat \n")
-clientSocket.shutdown(SHUT_RDWR)
-clientSocket.close()
-sys.exit(0)
