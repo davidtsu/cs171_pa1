@@ -35,7 +35,7 @@ def buy_tickets(client, address):
         data_tokens = data.split(" ")
         if len(data_tokens) > 3:
             # The request was forwarded from the Movie Server
-            print "Received request from kiosk", data_tokens[3], data_tokens[4], "=", data_tokens[0], data_tokens[1], data_tokens[2]
+            print "Received forwarded request from kiosk", data_tokens[3], data_tokens[4], "=", data_tokens[0], data_tokens[1], data_tokens[2]
         else:
             print "Received request from kiosk", address, "=", data
 
