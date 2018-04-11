@@ -45,7 +45,7 @@ def buy_tickets(client, address):
             requested_num_tickets = int(data_tokens[2])
             if (num_tickets - requested_num_tickets) < 0:
                 # Not enough tickets to satisfy request. Send a message to the kiosk saying that the request was unsuccessful.
-                print "There are no enough tickets to honor the request.\n"
+                print "There are not enough tickets to honor the request.\n"
                 print "NUMBER OF MOVIE TICKETS REMAINING = ", str(num_tickets), "\n"
                 time.sleep(3)
                 client.send("UNSUCCESSFUL: Not enough movie tickets to honor request.\n")
